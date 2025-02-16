@@ -4,26 +4,24 @@ import { useState } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([]); // Store chat history
+    const [messages, setMessages] = useState([]); 
     const [loading, setLoading] = useState(false);
 
     const handleSendMessage = async () => {
-        if (!query.trim()) return; // Prevent empty messages
+        if (!query.trim()) return; 
 
         setLoading(true);
 
-        // Store user message
         const newMessages = [...messages, { role: "user", content: query }];
         setMessages(newMessages);
-        setQuery(""); // Clear input
+        setQuery(""); 
 
         try {
-            // Send request to OpenAI API
             const response = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: query }), // ✅ Correct
-});
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: query }),
+            });
 
             const data = await response.json();
             
@@ -40,20 +38,17 @@ export default function ChatBox() {
     };
 
     return (
-        <div 
-            className="flex flex-col h-screen items-center justify-start bg-cover bg-center text-white text-center p-6"
+        <div className="flex flex-col h-screen items-center justify-start bg-cover bg-center text-white text-center p-6"
             style={{ 
                 backgroundImage: "url('/main_cover.jpg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center"
             }}
         >
-            {/* Slogan Section */}
             <h1 className="text-5xl font-extrabold mt-20 max-w-3xl leading-tight tracking-wide text-white drop-shadow-lg">
                 CoreWerx Solutions! <br /> Ask anything.
             </h1>
 
-            {/* Chat Messages */}
             <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto">
                 {messages.map((msg, index) => (
                     <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
@@ -62,7 +57,6 @@ export default function ChatBox() {
                 ))}
             </div>
 
-            {/* Chat Input Box */}
             <div className="flex w-full max-w-lg mt-4">
                 <input 
                     type="text"
