@@ -1,11 +1,3 @@
-const eslintConfig = [
-  {
-    parser: "@babel/eslint-parser", // Explicitly set parser
-    ...compat.extends("next/core-web-vitals"),
-  },
-];
-
-export default eslintConfig;
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
@@ -17,6 +9,10 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [...compat.extends("next/core-web-vitals")];
-
-export default eslintConfig;
+export default {
+  extends: ["next/core-web-vitals"], // Ensure this is an array instead of function output
+  parserOptions: {
+    ecmaVersion: "latest", // Ensure latest ECMAScript version
+    sourceType: "module",
+  },
+};
