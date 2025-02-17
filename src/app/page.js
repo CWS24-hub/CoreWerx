@@ -46,7 +46,7 @@ export default function ChatBox() {
             }}
         >
             <h1 className="text-5xl font-extrabold mt-20 max-w-3xl leading-tight tracking-wide text-white drop-shadow-lg">
-                CoreWerx Solutions! <br /> Ask anything.
+                CoreWerx Solutions! <br /> Ask Away.
             </h1>
 
             <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto">
