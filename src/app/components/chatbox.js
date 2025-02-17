@@ -9,8 +9,10 @@ export default function ChatBox() {
 
     // Set the initial welcome message when the component mounts
     useEffect(() => {
-        setMessages([{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }]);
-    }, []);
+    setMessages([{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }]);
+    console.log("Messages updated:", messages);
+}, []);
+
 
     const handleSendMessage = async () => {
         if (!query.trim()) return; 
