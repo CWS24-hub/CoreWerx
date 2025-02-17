@@ -1,73 +1,82 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState([]); 
+    const [loading, setLoading] = useState(false);
 
-    // Handle Sending Message
+    // Set the initial welcome message when the component mounts
+    useEffect(() => {
+        setMessages([{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }]);
+    }, []);
+
     const handleSendMessage = async () => {
-        if (!query.trim()) return;
+        if (!query.trim()) return; 
 
-        const newMessages = [...messages, { role: "user", text: query }];
+        setLoading(true);
+
+        const newMessages = [...messages, { role: "user", content: query }];
         setMessages(newMessages);
-        setQuery("");
+        setQuery(""); 
 
         try {
             const response = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: query }), // ✅ Correct
-});
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: query }),
+            });
 
             const data = await response.json();
-            setMessages([...newMessages, { role: "bot", text: data.reply }]);
+            
+            if (data.error) {
+                setMessages([...newMessages, { role: "system", content: "Error: " + data.error }]);
+            } else {
+                setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+            }
         } catch (error) {
-            setMessages([...newMessages, { role: "bot", text: "Failed to fetch response." }]);
+            setMessages([...newMessages, { role: "system", content: "Failed to fetch response." }]);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div 
-            className="flex flex-col h-screen items-center justify-center bg-cover bg-center text-white text-center p-6"
+        <div className="flex flex-col h-screen items-center justify-start bg-cover bg-center text-white text-center p-6"
             style={{ 
-                backgroundImage: "url('/main_cover.jpg')",
+                backgroundImage: "url('/Main_Cover.jpg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center"
             }}
         >
-            {/* Slogan Section */}
-            <h1 className="text-5xl font-extrabold mt-10 max-w-3xl leading-tight tracking-wide text-white drop-shadow-lg">
-                CoreWerx Solutions! <br /> Ask anything.
+            <h1 className="text-5xl font-extrabold mt-20 max-w-3xl leading-tight tracking-wide text-white drop-shadow-lg">
+                CoreWerx Solutions! <br /> Ask Away.
             </h1>
 
-            {/* Chat Container */}
-            <div className="w-full max-w-lg mt-5 p-4 bg-black bg-opacity-60 rounded-lg shadow-lg">
-                <div className="h-64 overflow-y-auto p-3 space-y-2">
-                    {messages.map((msg, index) => (
-                        <p key={index} className={`text-${msg.role === "user" ? "blue" : "green"}-400`}>
-                            <strong>{msg.role === "user" ? "You" : "Bot"}:</strong> {msg.text}
-                        </p>
-                    ))}
-                </div>
+            <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto">
+                {messages.map((msg, index) => (
+                    <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
+                        <strong>{msg.role === "user" ? "You: " : "Bot: "}</strong> {msg.content}
+                    </p>
+                ))}
+            </div>
 
-                {/* Chat Input Box */}
-                <div className="flex mt-3">
-                    <input 
-                        type="text"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Ask me anything..."
-                        className="flex-1 p-3 rounded-l-lg border border-gray-600 bg-white text-black text-left placeholder-gray-400"
-                    />
-                    <button 
-                        onClick={handleSendMessage} 
-                        className="bg-blue-600 text-white px-4 rounded-r-lg"
-                    >
-                        Send
-                    </button>
-                </div>
+            <div className="flex w-full max-w-lg mt-4">
+                <input 
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Office 365, Cloud Services, Cybersecurity, Managed IT Service"
+                    className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black text-left placeholder-gray-500 shadow-md"
+                />
+                <button 
+                    onClick={handleSendMessage} 
+                    className="p-3 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600"
+                    disabled={loading}
+                >
+                    {loading ? "..." : "Send"}
+                </button>
             </div>
         </div>
     );
