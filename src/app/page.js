@@ -40,7 +40,7 @@ export default function ChatBox() {
     return (
         <div className="flex flex-col h-screen items-center justify-start bg-cover bg-center text-white text-center p-6"
             style={{ 
-                backgroundImage: "url('/main_cover.jpg')",
+                backgroundImage: "url('/public/main_cover.jpg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center"
             }}
