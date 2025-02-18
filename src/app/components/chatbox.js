@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([
-        { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
-    ]); 
+    const [messages, setMessages] = useState([]); 
     const [loading, setLoading] = useState(false);
+
+    // Ensure the assistant message is added only once
+    useEffect(() => {
+        setMessages([{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }]);
+    }, []);
+
+    console.log("Messages state:", messages); // Debugging line
 
     const handleSendMessage = async () => {
         if (!query.trim()) return; 
@@ -51,12 +56,16 @@ export default function ChatBox() {
                 CoreWerx Solutions! <br /> Ask Away.
             </h1>
 
-            <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto">
-                {messages.map((msg, index) => (
-                    <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
-                        <strong>{msg.role === "user" ? "You: " : "Bot: "}</strong> {msg.content}
-                    </p>
-                ))}
+            <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto border border-white">
+                {messages.length === 0 ? (
+                    <p className="text-green-400">Loading...</p> // Debugging visibility
+                ) : (
+                    messages.map((msg, index) => (
+                        <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
+                            <strong>{msg.role === "user" ? "You: " : "Bot: "}</strong> {msg.content}
+                        </p>
+                    ))
+                )}
             </div>
 
             <div className="flex w-full max-w-lg mt-4">
