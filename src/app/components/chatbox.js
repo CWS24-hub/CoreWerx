@@ -1,32 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([]); 
-    const [loading, setLoading] = useState(false);
-
-    // Set the initial welcome message when the component mounts
-    useEffect(() => {
-    console.log("Initializing messages...");
-    if (!messages) {
-        console.error("Messages state is undefined!");
-        return;
-    }
-
-    setMessages((prevMessages) => [
-        ...prevMessages,
+    const [messages, setMessages] = useState([
         { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
-    ]);
-
-    console.log("Messages after update:", messages);
-}, []);
-
-    // Log messages when they update
-    useEffect(() => {
-        console.log("Messages updated:", messages);
-    }, [messages]);
+    ]); 
+    const [loading, setLoading] = useState(false);
 
     const handleSendMessage = async () => {
         if (!query.trim()) return; 
