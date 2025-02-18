@@ -9,11 +9,11 @@ export default function ChatBox() {
 
     // Set the initial welcome message when the component mounts
     useEffect(() => {
-        setMessages((prevMessages) => [
-            ...prevMessages,
-            { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
-        ]);
-    }, []);
+    setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
+    ]);
+}, []);
 
     // Log messages when they update
     useEffect(() => {
