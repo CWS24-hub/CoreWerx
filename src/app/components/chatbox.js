@@ -7,12 +7,21 @@ export default function ChatBox() {
     const [messages, setMessages] = useState([]); 
     const [loading, setLoading] = useState(false);
 
-    // Ensure the assistant message is added only once
+    // Set the initial welcome message when the component mounts
     useEffect(() => {
-        setMessages([{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }]);
+        console.log("Initializing messages...");
+
+        setMessages(prevMessages => [
+            { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
+        ]);
+
+        console.log("Messages after update:", messages);
     }, []);
 
-    console.log("Messages state:", messages); // Debugging line
+    // Debugging: Log messages when they update
+    useEffect(() => {
+        console.log("Updated Messages:", messages);
+    }, [messages]);
 
     const handleSendMessage = async () => {
         if (!query.trim()) return; 
@@ -33,12 +42,12 @@ export default function ChatBox() {
             const data = await response.json();
             
             if (data.error) {
-                setMessages([...newMessages, { role: "system", content: "Error: " + data.error }]);
+                setMessages(prev => [...prev, { role: "system", content: "Error: " + data.error }]);
             } else {
-                setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+                setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
             }
         } catch (error) {
-            setMessages([...newMessages, { role: "system", content: "Failed to fetch response." }]);
+            setMessages(prev => [...prev, { role: "system", content: "Failed to fetch response." }]);
         } finally {
             setLoading(false);
         }
@@ -58,7 +67,7 @@ export default function ChatBox() {
 
             <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto border border-white">
                 {messages.length === 0 ? (
-                    <p className="text-green-400">Loading...</p> // Debugging visibility
+                    <p className="text-green-400">Loading messages...</p> // Debugging visibility
                 ) : (
                     messages.map((msg, index) => (
                         <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
