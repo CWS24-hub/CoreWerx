@@ -4,19 +4,8 @@ import { useState, useEffect } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([]); 
+    const [messages, setMessages] = useState([{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }]); 
     const [loading, setLoading] = useState(false);
-
-    // Set the initial welcome message when the component mounts
-    useEffect(() => {
-        console.log("Initializing messages...");
-
-        setMessages(prevMessages => [
-            { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
-        ]);
-
-        console.log("Messages after update:", messages);
-    }, []);
 
     // Debugging: Log messages when they update
     useEffect(() => {
@@ -66,15 +55,11 @@ export default function ChatBox() {
             </h1>
 
             <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto border border-white">
-                {messages.length === 0 ? (
-                    <p className="text-green-400">Loading messages...</p> // Debugging visibility
-                ) : (
-                    messages.map((msg, index) => (
-                        <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
-                            <strong>{msg.role === "user" ? "You: " : "Bot: "}</strong> {msg.content}
-                        </p>
-                    ))
-                )}
+                {messages.map((msg, index) => (
+                    <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
+                        <strong>{msg.role === "user" ? "You: " : "Bot: "}</strong> {msg.content}
+                    </p>
+                ))}
             </div>
 
             <div className="flex w-full max-w-lg mt-4">
