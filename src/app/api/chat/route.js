@@ -30,12 +30,17 @@ const services = {
 // Function to check user message and match services
 function getChatbotResponse(userMessage) {
     const lowerCaseMessage = userMessage.toLowerCase();
+    let matchedServices = [];
 
     for (const service in services) {
-        if (lowerCaseMessage.includes(service.toLowerCase())) {
-            return `🔹 ${service}: ${services[service]} \n👉 Would you like to book a consultation?`;
+        if (lowerCaseMessage.includes(service.toLowerCase()) || lowerCaseMessage.includes(service.split(" ")[0].toLowerCase())) {
+            matchedServices.push(`🔹 ${service}: ${services[service]}`);
         }
     }
 
-    return "I'm here to help! Please ask about our IT services, such as Managed IT, Cloud Solutions, or Cybersecurity.";
+    if (matchedServices.length > 0) {
+        return `${matchedServices.join("\n")}\n👉 Would you like to **book a consultation** or a **callback**? Click here to schedule: [Book a Meeting](#)`;
+    }
+
+    return "I'm here to help! Please ask about our IT services, such as **Managed IT**, **Cloud Solutions**, or **Cybersecurity**.\n\nWould you like to book a **free consultation**? [Click here](#) to schedule.";
 }
