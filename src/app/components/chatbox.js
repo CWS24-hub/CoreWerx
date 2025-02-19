@@ -4,9 +4,7 @@ import { useState, useEffect } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([
-        { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
-    ]);
+    const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
 
     // Debugging: Log messages when they update
@@ -82,20 +80,4 @@ export default function ChatBox() {
 
             <div className="flex w-full max-w-lg mt-4">
                 <input 
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Office 365, Cloud Services, Cybersecurity, Managed IT Service"
-                    className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black text-left placeholder-gray-500 shadow-md"
-                />
-                <button 
-                    onClick={handleSendMessage} 
-                    className="p-3 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600"
-                    disabled={loading}
-                >
-                    {loading ? "..." : "Send"}
-                </button>
-            </div>
-        </div>
-    );
-}
+                    type="
