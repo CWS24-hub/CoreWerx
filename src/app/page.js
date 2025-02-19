@@ -4,7 +4,9 @@ import { useState } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([]); 
+    const [messages, setMessages] = useState([
+        { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
+    ]); 
     const [loading, setLoading] = useState(false);
 
     const handleSendMessage = async () => {
