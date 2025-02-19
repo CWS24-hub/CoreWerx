@@ -4,12 +4,25 @@ import { useState, useEffect } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }]); 
+    const [messages, setMessages] = useState([]); 
     const [loading, setLoading] = useState(false);
+
+    // Ensure welcome message is set properly
+    useEffect(() => {
+        console.log("🚀 ChatBox Mounted!");
+        
+        setMessages(prevMessages => {
+            if (prevMessages.length === 0) {
+                console.log("✅ Setting initial welcome message...");
+                return [{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }];
+            }
+            return prevMessages;
+        });
+    }, []);
 
     // Debugging: Log messages when they update
     useEffect(() => {
-        console.log("Updated Messages:", messages);
+        console.log("📝 Messages updated:", messages);
     }, [messages]);
 
     const handleSendMessage = async () => {
@@ -20,6 +33,8 @@ export default function ChatBox() {
         const newMessages = [...messages, { role: "user", content: query }];
         setMessages(newMessages);
         setQuery(""); 
+
+        console.log("💬 Sending message:", query);
 
         try {
             const response = await fetch("/api/chat", {
@@ -55,11 +70,15 @@ export default function ChatBox() {
             </h1>
 
             <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto border border-white">
-                {messages.map((msg, index) => (
-                    <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
-                        <strong>{msg.role === "user" ? "You: " : "Bot: "}</strong> {msg.content}
-                    </p>
-                ))}
+                {messages.length === 0 ? (
+                    <p className="text-green-400">❌ No messages loaded</p>
+                ) : (
+                    messages.map((msg, index) => (
+                        <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
+                            <strong>{msg.role === "user" ? "You: " : "Bot: "}</strong> {msg.content}
+                        </p>
+                    ))
+                )}
             </div>
 
             <div className="flex w-full max-w-lg mt-4">
