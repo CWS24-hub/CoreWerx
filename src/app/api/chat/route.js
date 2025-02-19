@@ -1,36 +1,34 @@
-import { NextResponse } from "next/server";
+// File: /app/api/chat/route.js
 
 export async function POST(req) {
     try {
         const { message } = await req.json();
-        console.log("User message received:", message);
-
-        if (!message) {
-            return NextResponse.json({ error: "Empty message" }, { status: 400 });
-        }
-
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-            },
-            body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: message }],
-            }),
-        });
-
-        const data = await response.json();
-        console.log("OpenAI API Response:", data);
-
-        if (!data.choices || data.choices.length === 0) {
-            return NextResponse.json({ reply: "No valid response from AI" });
-        }
-
-        return NextResponse.json({ reply: data.choices[0]?.message?.content || "No response from AI" });
+        const response = getChatbotResponse(message);
+        return Response.json({ reply: response });
     } catch (error) {
-        console.error("Error calling OpenAI API:", error);
-        return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
+        return Response.json({ error: "Failed to process request." }, { status: 500 });
     }
+}
+
+// List of services and their descriptions
+const services = {
+    "Managed IT Services": "We offer full-service IT management, including support, security, and infrastructure maintenance.",
+    "Cloud Solutions": "We provide Azure and Office 365 solutions, including migration, management, and security.",
+    "CRM Implementation": "We help businesses implement and customize salesforce for better customer management.",
+    "Microsoft Modern Workplace": "Enhance productivity with Microsoft tools like Teams, SharePoint, and OneDrive.",
+    "Cybersecurity & Compliance": "Protect your business with advanced security solutions, audits, and compliance management."
+	"Email security & Compliance": "Protect your business Emails with advanced AI capable security solutions."
+};
+
+// Function to check user message and match services
+function getChatbotResponse(userMessage) {
+    const lowerCaseMessage = userMessage.toLowerCase();
+    
+    for (const service in services) {
+        if (lowerCaseMessage.includes(service.toLowerCase())) {
+            return `🔹 ${service}: ${services[service]} \n👉 Would you like to book a consultation?`;
+        }
+    }
+    
+    return "I'm here to help! Please ask about our IT services, such as Managed IT, Cloud Solutions, or Cybersecurity.";
 }
