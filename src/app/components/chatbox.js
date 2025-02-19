@@ -4,37 +4,27 @@ import { useState, useEffect } from "react";
 
 export default function ChatBox() {
     const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState([]); 
+    const [messages, setMessages] = useState([
+        { role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }
+    ]);
     const [loading, setLoading] = useState(false);
-
-    // Ensure welcome message is set properly
-    useEffect(() => {
-        console.log("🚀 ChatBox Mounted!");
-        
-        setMessages(prevMessages => {
-            if (prevMessages.length === 0) {
-                console.log("✅ Setting initial welcome message...");
-                return [{ role: "assistant", content: "Hey there! Looking for IT solutions? Let’s chat and find the best fit for you." }];
-            }
-            return prevMessages;
-        });
-    }, []);
 
     // Debugging: Log messages when they update
     useEffect(() => {
-        console.log("📝 Messages updated:", messages);
+        console.log("Updated Messages:", messages);
     }, [messages]);
 
     const handleSendMessage = async () => {
-        if (!query.trim()) return; 
+        if (!query.trim()) return;
 
         setLoading(true);
 
-        const newMessages = [...messages, { role: "user", content: query }];
-        setMessages(newMessages);
-        setQuery(""); 
+        setMessages((prevMessages) => [
+            ...prevMessages,
+            { role: "user", content: query }
+        ]);
 
-        console.log("💬 Sending message:", query);
+        setQuery("");
 
         try {
             const response = await fetch("/api/chat", {
@@ -44,14 +34,23 @@ export default function ChatBox() {
             });
 
             const data = await response.json();
-            
+
             if (data.error) {
-                setMessages(prev => [...prev, { role: "system", content: "Error: " + data.error }]);
+                setMessages((prevMessages) => [
+                    ...prevMessages,
+                    { role: "system", content: "Error: " + data.error }
+                ]);
             } else {
-                setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
+                setMessages((prevMessages) => [
+                    ...prevMessages,
+                    { role: "assistant", content: data.reply }
+                ]);
             }
         } catch (error) {
-            setMessages(prev => [...prev, { role: "system", content: "Failed to fetch response." }]);
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                { role: "system", content: "Failed to fetch response." }
+            ]);
         } finally {
             setLoading(false);
         }
@@ -71,7 +70,7 @@ export default function ChatBox() {
 
             <div className="w-full max-w-lg mt-5 p-4 bg-gray-900 bg-opacity-80 rounded-lg shadow-md text-left h-64 overflow-y-auto border border-white">
                 {messages.length === 0 ? (
-                    <p className="text-green-400">❌ No messages loaded</p>
+                    <p className="text-green-400">Loading messages...</p>
                 ) : (
                     messages.map((msg, index) => (
                         <p key={index} className={msg.role === "user" ? "text-blue-400" : "text-green-400"}>
