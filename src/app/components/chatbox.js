@@ -80,4 +80,20 @@ export default function ChatBox() {
 
             <div className="flex w-full max-w-lg mt-4">
                 <input 
-                    type="
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Office 365, Cloud Services, Cybersecurity, Managed IT Service"
+                    className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black text-left placeholder-gray-500 shadow-md"
+                />
+                <button 
+                    onClick={handleSendMessage} 
+                    className="p-3 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600"
+                    disabled={loading}
+                >
+                    {loading ? "..." : "Send"}
+                </button>
+            </div>
+        </div>
+    );
+}
