@@ -25,10 +25,10 @@ const services = {
   "CRM Implementation": "Custom Salesforce setup to boost your customer management and sales efficiency.",
   "Microsoft Modern Workplace": "Enhance productivity with Microsoft tools like Teams, SharePoint, and OneDrive.",
   "Cybersecurity & Compliance": "Protect your business with advanced security, audits, and compliance management.",
-  "Email Security": "Safeguard your business emails with our AI-powered security solutions — a smart choice!",
+  "Email Security": "Safeguard your business emails with our AI-powered security solutions — the perfect choice to secure your inbox!",
 };
 
-// Enhanced NLU function to handle synonyms and varied phrasing
+// Enhanced NLU with intent clarification
 function matchService(message) {
   const lowerMessage = message.toLowerCase();
   const serviceMatches = {};
@@ -59,34 +59,43 @@ function getChatbotResponse(message, step, email, slot) {
     case "initial":
       if (!message.trim()) {
         return {
-          reply: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try asking about Managed IT, Cloud Solutions, or Cybersecurity!",
+          reply: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try ‘Email Security,’ ‘Cloud Solutions,’ or ‘Managed IT’!",
           nextStep: "initial",
         };
       }
       const matchedServices = matchService(message);
       if (Object.keys(matchedServices).length > 0) {
-        const serviceList = Object.entries(matchedServices)
-          .map(([service, desc]) => `🔹 **${service}**: ${desc}`)
-          .join("\n");
+        const topMatch = Object.entries(matchedServices)
+          .find(([service]) => message.toLowerCase().includes(service.toLowerCase()) || 
+                              message.toLowerCase().includes(service.split(" ")[0].toLowerCase()));
+        if (topMatch) {
+          const [service, desc] = topMatch;
+          return {
+            reply: `Awesome choice! For **${service}**: ${desc}\n\nReady to **book a consultation** and secure your IT needs? Just share your email, and I’ll walk you through scheduling! 😊`,
+            nextStep: "contact",
+          };
+        }
+        // If multiple or vague matches, suggest top options
+        const topServices = Object.entries(matchedServices).slice(0, 2).map(([s, d]) => `🔹 **${s}**: ${d}`).join("\n");
         return {
-          reply: `Great question! Here’s what I found:\n${serviceList}\n\nWould you like to **book a consultation** or **schedule a callback**? Just share your email, and I’ll guide you further!`,
-          nextStep: "contact",
+          reply: `Great question! Based on that, I think you might mean:\n${topServices}\n\nWhich service are you interested in? Or, let’s **book a consultation** — just provide your email!`,
+          nextStep: "initial",
         };
       }
       return {
-        reply: `Hmm, I’m not sure about that. 😅 How about asking about our IT services like **Managed IT**, **Cloud Solutions**, or **Cybersecurity**? Or, would you like to **book a free consultation**? Share your email, and I’ll assist!`,
-        nextStep: "contact",
+        reply: `Hmm, I’m not sure I caught that. 😅 Did you mean something like **Email Security**, **Cloud Solutions**, or **Cybersecurity**? Or, let’s **kickstart your IT journey** with a free consultation — share your email, and I’ll guide you!`,
+        nextStep: "initial",
       };
 
     case "contact":
       if (!email) {
         return {
-          reply: `Awesome, thanks for reaching out! What’s your email address? I’ll use it to schedule your consultation or callback. 😊`,
+          reply: `Fantastic! What’s your email address? I’ll use it to schedule your personalized consultation and keep you updated. 😊`,
           nextStep: "contact",
         };
       }
       return {
-        reply: `Perfect, I’ve got your email: ${email}. Now, let’s pick a meeting slot. Here are your options:\n1. Tomorrow at 10:00 AM UAE time\n2. Tomorrow at 2:00 PM UAE time\nJust reply with 1 or 2!`,
+        reply: `Perfect, I’ve saved your email: ${email}. Let’s pick a time for your consultation. Here’s what’s available:\n1. Tomorrow at 10:00 AM UAE time\n2. Tomorrow at 2:00 PM UAE time\nJust reply with 1 or 2, and we’ll lock it in!`,
         nextStep: "slots",
       };
 
@@ -95,30 +104,30 @@ function getChatbotResponse(message, step, email, slot) {
         const slotNum = parseInt(message);
         if (slotNum === 1) {
           return {
-            reply: `Great choice! I’ve booked you for tomorrow at 10:00 AM UAE time. We’ll send a confirmation to ${email}. Anything else I can help with? 😊`,
+            reply: `Awesome! You’re booked for tomorrow at 10:00 AM UAE time. Expect a confirmation email at ${email} — we’re excited to help with your IT needs! Anything else on your mind, or ready to explore more solutions? 😊`,
             nextStep: "initial",
             slot: "10:00 AM",
           };
         } else if (slotNum === 2) {
           return {
-            reply: `Excellent! You’re booked for tomorrow at 2:00 PM UAE time. Expect a confirmation email at ${email}. Need anything else? 😊`,
+            reply: `Excellent! Your consultation is set for tomorrow at 2:00 PM UAE time. We’ll send details to ${email}. Want to dive deeper into our IT services or book another slot? Let me know! 😊`,
             nextStep: "initial",
             slot: "2:00 PM",
           };
         }
         return {
-          reply: `Oops, I didn’t catch that. Please pick 1 for 10:00 AM or 2 for 2:00 PM UAE time. 😊`,
+          reply: `Oops, I didn’t catch that. Please pick 1 for 10:00 AM or 2 for 2:00 PM UAE time. I’m here to make it easy for you! 😊`,
           nextStep: "slots",
         };
       }
       return {
-        reply: `You’re all set for tomorrow at ${slot} UAE time! We’ll follow up via ${email}. How else can I assist today? 😊`,
+        reply: `You’re all set for tomorrow at ${slot} UAE time! We’ll follow up via ${email}. Ready to explore more IT solutions or book another consultation? Just ask! 😊`,
         nextStep: "initial",
       };
 
     default:
       return {
-        reply: `Looks like we hit a snag. 😅 Let’s start fresh! What IT services can I help with today?`,
+        reply: `Looks like we hit a snag. 😅 Let’s start fresh! What IT services can I assist with today? Try ‘Email Security’ or ‘Cloud Solutions’ — or book a consultation with your email!`,
         nextStep: "initial",
       };
   }

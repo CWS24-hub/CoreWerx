@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 export default function ChatBox() {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try asking about Managed IT, Cloud Solutions, or Cybersecurity!" },
+    { role: "assistant", content: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try ‘Email Security,’ ‘Cloud Solutions,’ or ‘Managed IT’!" },
   ]);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState("initial");
