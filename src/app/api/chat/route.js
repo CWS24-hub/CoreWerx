@@ -33,8 +33,8 @@ const services = {
 function matchIntent(message) {
   const lowerMessage = message.toLowerCase();
   const intents = {
-    email_security: ["email security", "secure email", "email protection"],
-    professional_emails: ["professional emails", "business emails", "create emails"],
+    email_setup: ["emails", "professional emails", "business emails", "create emails", "setup emails"],
+    email_improvement: ["email security", "secure email", "improve emails", "email protection"],
     email_migration: ["email migration", "migrate emails", "move emails"],
     office_365: ["office 365", "microsoft 365", "o365"],
     general_it: ["managed it", "cloud solutions", "cybersecurity"],
@@ -53,7 +53,7 @@ function getChatbotResponse(message, step, email, slot, context) {
     case "initial":
       if (!message.trim()) {
         return {
-          reply: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try ‘Email Security,’ ‘Professional Emails,’ or ‘Cloud Solutions’!",
+          reply: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try ‘Emails,’ ‘Email Security,’ or ‘Cloud Solutions’!",
           nextStep: "initial",
           context: {},
         };
@@ -61,21 +61,21 @@ function getChatbotResponse(message, step, email, slot, context) {
       const intent = matchIntent(message);
       if (intent) {
         switch (intent) {
-          case "email_security":
+          case "email_setup":
             return {
-              reply: "Great question! To recommend the best email security, what type of cloud email services are you currently using? (e.g., Office 365, Google Workspace, other)",
-              nextStep: "email_security",
-              context: { intent: "email_security" },
+              reply: "Awesome! Are you looking to set up new email systems in the cloud, or do you already have emails and want to improve the system?",
+              nextStep: "email_setup",
+              context: { intent: "email_setup" },
             };
-          case "professional_emails":
+          case "email_improvement":
             return {
-              reply: "Awesome! For professional emails, what cloud platform do you have in mind? I highly recommend Microsoft Office 365 for its powerful features — would that work for you? (e.g., Office 365, Google, other)",
-              nextStep: "professional_emails",
-              context: { intent: "professional_emails" },
+              reply: "Great question! To recommend the best solution, do you already have email systems in the cloud (e.g., Office 365, Google Workspace) that need security or improvements?",
+              nextStep: "email_improvement",
+              context: { intent: "email_improvement" },
             };
           case "email_migration":
             return {
-              reply: "I’d love to help with email migration! Are you migrating from a traditional email system or a professional service like Google Workspace or Office 365? Let me know!",
+              reply: "I’d love to help with email migration! Are you migrating from a traditional email system or a professional service like Google Workspace or Office 365? And to which platform?",
               nextStep: "email_migration",
               context: { intent: "email_migration" },
             };
@@ -105,17 +105,66 @@ function getChatbotResponse(message, step, email, slot, context) {
         }
       }
       return {
-        reply: `Hmm, I’m not sure I caught that. 😅 Did you mean something like **Email Security**, **Professional Emails**, or **Cloud Solutions**? Or, let’s **kickstart your IT journey** with a free consultation — share your email!`,
+        reply: `Hmm, I’m not sure I caught that. 😅 Did you mean something like **Emails**, **Email Security**, or **Cloud Solutions**? Or, let’s **kickstart your IT journey** with a free consultation — share your email!`,
         nextStep: "initial",
         context: {},
       };
 
-    case "email_security":
+    case "email_setup":
+      if (!context.type) {
+        const type = message.toLowerCase();
+        if (type.includes("new") || type.includes("setup") || type.includes("don’t have")) {
+          return {
+            reply: "Fantastic! There are a few big players for professional emails, like Microsoft Office 365 and Google Workspace. I highly recommend Microsoft Office 365 — it offers superior integration with Microsoft 365 tools, stronger security, and better productivity features compared to Google. Would you like to explore Office 365 for your new email setup? Or, tell me if you prefer another option!",
+            nextStep: "email_setup",
+            context: { ...context, type: "new" },
+          };
+        } else if (type.includes("already") || type.includes("improve")) {
+          return {
+            reply: "Got it — you already have emails! Do you need to improve security (e.g., Email Security), migrate to a new platform, or enhance your system? Let me know!",
+            nextStep: "email_improvement",
+            context: { ...context, type: "existing" },
+          };
+        }
+        return {
+          reply: "Thanks! Are you setting up new email systems in the cloud, or do you already have emails you want to improve? Let me know, and I’ll guide you! 😊",
+          nextStep: "email_setup",
+          context,
+        };
+      }
+      if (context.type === "new") {
+        const platform = message.toLowerCase();
+        if (platform.includes("office") || platform.includes("365")) {
+          return {
+            reply: "Excellent choice — Microsoft Office 365 is ideal for professional emails! We’ll set up robust email services for your business. Ready to **book a consultation**? Share your email, and I’ll guide you! 😊",
+            nextStep: "contact",
+            context: { ...context, platform: "Office 365" },
+          };
+        } else if (platform.includes("google") || platform.includes("workspace")) {
+          return {
+            reply: "Great, Google Workspace is an option! However, I strongly recommend Microsoft Office 365 for its superior integration, security, and productivity tools. Would you like to explore Office 365 instead? Or, book a consultation — share your email!",
+            nextStep: "contact",
+            context: { ...context, platform: "Google Workspace" },
+          };
+        }
+        return {
+          reply: "Thanks! Are you thinking of Microsoft Office 365, Google Workspace, or another platform for your new emails? I recommend Office 365 for its power — let me know! 😊",
+          nextStep: "email_setup",
+          context,
+        };
+      }
+      return {
+        reply: `Based on your preference for ${context.platform}, I recommend **Professional Emails** with ${context.platform}. Ready to **book a consultation**? Share your email, and I’ll assist! 😊`,
+        nextStep: "contact",
+        context,
+      };
+
+    case "email_improvement":
       if (!context.platform) {
         const platform = message.toLowerCase();
         if (platform.includes("office") || platform.includes("365")) {
           return {
-            reply: `Perfect — Microsoft Office 365 is an excellent choice! For **Email Security**: Safeguard your emails with our AI-powered solutions, optimized for Office 365. Ready to **book a consultation**? Share your email, and I’ll guide you! 😊`,
+            reply: `Perfect — you’re using Microsoft Office 365! For **Email Security**: Safeguard your emails with our AI-powered solutions, optimized for Office 365. Ready to **book a consultation**? Share your email, and I’ll guide you! 😊`,
             nextStep: "contact",
             context: { ...context, platform: "Office 365" },
           };
@@ -127,41 +176,34 @@ function getChatbotResponse(message, step, email, slot, context) {
           };
         }
         return {
-          reply: `Thanks! I couldn’t quite catch the platform. Are you using Microsoft Office 365, Google Workspace, or another service? Let me know, and I’ll recommend the best email security!`,
-          nextStep: "email_security",
+          reply: `Thanks! What cloud email service are you using? (e.g., Microsoft Office 365, Google Workspace) I’ll recommend the best improvements, like **Email Security** or migration!`,
+          nextStep: "email_improvement",
           context,
         };
       }
-      return {
-        reply: `Based on your use of ${context.platform}, I recommend **Email Security** for ${context.platform}. Ready to **book a consultation**? Share your email, and I’ll assist! 😊`,
-        nextStep: "contact",
-        context,
-      };
-
-    case "professional_emails":
-      if (!context.platform) {
-        const platform = message.toLowerCase();
-        if (platform.includes("office") || platform.includes("365")) {
+      if (!context.improvement) {
+        const improvement = message.toLowerCase();
+        if (improvement.includes("security")) {
           return {
-            reply: `Fantastic choice — Microsoft Office 365 is ideal for professional emails! We’ll set up robust email services for your business. Ready to **book a consultation**? Share your email, and I’ll guide you! 😊`,
+            reply: `Got it — you want **Email Security** for ${context.platform}! We’ll protect your emails with AI-powered solutions. Ready to **book a consultation**? Share your email, and I’ll assist! 😊`,
             nextStep: "contact",
-            context: { ...context, platform: "Office 365" },
+            context: { ...context, improvement: "security" },
           };
-        } else if (platform.includes("google") || platform.includes("workspace")) {
+        } else if (improvement.includes("migrate")) {
           return {
-            reply: `Great, Google Workspace is an option! However, I highly recommend Microsoft Office 365 for its superior features. Would you like to explore Office 365 instead? Or, book a consultation — share your email!`,
-            nextStep: "contact",
-            context: { ...context, platform: "Google Workspace" },
+            reply: "Perfect — let’s handle email migration! Where would you like to migrate to? I recommend Microsoft Office 365 for its robust features — would that work? (e.g., Office 365, Google Workspace)",
+            nextStep: "email_migration",
+            context: { ...context, improvement: "migration" },
           };
         }
         return {
-          reply: `Thanks! Are you thinking of Microsoft Office 365, Google Workspace, or another platform for professional emails? I recommend Office 365 for its power — let me know!`,
-          nextStep: "professional_emails",
+          reply: `Thanks! Do you need **Email Security**, email migration, or another improvement for ${context.platform}? Let me know, and I’ll guide you! 😊`,
+          nextStep: "email_improvement",
           context,
         };
       }
       return {
-        reply: `Based on your preference for ${context.platform}, I recommend **Professional Emails** with ${context.platform}. Ready to **book a consultation**? Share your email, and I’ll assist! 😊`,
+        reply: `Based on your ${context.improvement} needs for ${context.platform}, I recommend our **${context.improvement === "security" ? "Email Security" : "Email Migration"}** service. Ready to **book a consultation**? Share your email, and I’ll assist! 😊`,
         nextStep: "contact",
         context,
       };
@@ -189,7 +231,7 @@ function getChatbotResponse(message, step, email, slot, context) {
           };
         }
         return {
-          reply: `Thanks! Are you migrating from a traditional email system, Google Workspace, Microsoft Office 365, or another service? Let me know, and I’ll recommend the best migration path!`,
+          reply: `Thanks! Are you migrating from a traditional email system, Google Workspace, Microsoft Office 365, or another service? Let me know, and I’ll recommend the best path!`,
           nextStep: "email_migration",
           context,
         };
@@ -261,7 +303,7 @@ function getChatbotResponse(message, step, email, slot, context) {
 
     default:
       return {
-        reply: `Looks like we hit a snag. 😅 Let’s start fresh! What IT services can I assist with today? Try ‘Email Security’ or ‘Cloud Solutions’ — or book a consultation with your email!`,
+        reply: `Looks like we hit a snag. 😅 Let’s start fresh! What IT services can I assist with today? Try ‘Emails’ or ‘Cloud Solutions’ — or book a consultation with your email!`,
         nextStep: "initial",
         context: {},
       };

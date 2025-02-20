@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 export default function ChatBox() {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try ‘Email Security,’ ‘Professional Emails,’ or ‘Cloud Solutions’!" },
+    { role: "assistant", content: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try ‘Emails,’ ‘Email Security,’ or ‘Cloud Solutions’!" },
   ]);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState("initial");
@@ -17,12 +17,12 @@ export default function ChatBox() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!query.trim() && step !== "contact" && step !== "slots" && step !== "email_security" && step !== "professional_emails" && step !== "email_migration") return;
+    if (!query.trim() && step !== "contact" && step !== "slots" && step !== "email_setup" && step !== "email_improvement" && step !== "email_migration") return;
     setLoading(true);
 
     const userMessage = step === "contact" ? email : 
                        step === "slots" ? query : 
-                       step === "email_security" || step === "professional_emails" || step === "email_migration" ? query : query;
+                       step === "email_setup" || step === "email_improvement" || step === "email_migration" ? query : query;
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setQuery("");
 
@@ -70,14 +70,14 @@ export default function ChatBox() {
         />
       );
     }
-    if (step === "email_security" || step === "professional_emails" || step === "email_migration") {
+    if (step === "email_setup" || step === "email_improvement" || step === "email_migration") {
       return (
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={step === "email_security" ? "e.g., Office 365, Google Workspace..." : 
-                       step === "professional_emails" ? "e.g., Office 365, Google Workspace..." : 
+          placeholder={step === "email_setup" ? "e.g., new setup, already have emails..." : 
+                       step === "email_improvement" ? "e.g., Office 365, Google Workspace..." : 
                        "e.g., traditional, Google Workspace, Office 365..."}
           className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black placeholder-gray-500 shadow-md"
           onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
