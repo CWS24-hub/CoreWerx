@@ -4,36 +4,78 @@ import { useState, useEffect } from "react";
 export default function ChatBox() {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Welcome to CoreWerx Solutions! Ask me about our IT services like Managed IT, Cloud Solutions, or Cybersecurity." },
+    { role: "assistant", content: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try asking about Managed IT, Cloud Solutions, or Cybersecurity!" },
   ]);
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState("initial");
+  const [email, setEmail] = useState("");
+  const [slot, setSlot] = useState("");
 
   useEffect(() => {
     console.log("Updated Messages:", messages);
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!query.trim()) return;
+    if (!query.trim() && step !== "contact" && step !== "slots") return;
     setLoading(true);
-    setMessages((prev) => [...prev, { role: "user", content: query }]);
+
+    const userMessage = step === "contact" ? email : step === "slots" ? query : query;
+    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setQuery("");
 
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: query }),
+        body: JSON.stringify({ message: userMessage, step, email, slot }),
       });
       const data = await response.json();
-      setMessages((prev) => [
-        ...prev,
-        { role: data.error ? "system" : "assistant", content: data.error || data.reply },
-      ]);
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      setStep(data.nextStep || "initial");
+      setEmail(data.email || email);
+      setSlot(data.slot || slot);
     } catch (error) {
-      setMessages((prev) => [...prev, { role: "system", content: "Failed to fetch response." }]);
+      setMessages((prev) => [...prev, { role: "system", content: "Oops, something went wrong. Let’s try again!" }]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderInput = () => {
+    if (step === "contact") {
+      return (
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email..."
+          className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black placeholder-gray-500 shadow-md"
+          onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+        />
+      );
+    }
+    if (step === "slots") {
+      return (
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Enter 1 or 2 for the slot..."
+          className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black placeholder-gray-500 shadow-md"
+          onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+        />
+      );
+    }
+    return (
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Ask about IT services..."
+        className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black placeholder-gray-500 shadow-md"
+        onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+      />
+    );
   };
 
   return (
@@ -52,13 +94,7 @@ export default function ChatBox() {
         ))}
       </div>
       <div className="flex w-full max-w-lg mt-4">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ask about IT services..."
-          className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black placeholder-gray-500 shadow-md"
-        />
+        {renderInput()}
         <button
           onClick={handleSendMessage}
           className="p-3 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600"
