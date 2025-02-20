@@ -4,22 +4,25 @@ import { useState, useEffect } from "react";
 export default function ChatBox() {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try ‘Email Security,’ ‘Cloud Solutions,’ or ‘Managed IT’!" },
+    { role: "assistant", content: "Hi there! I’m your CoreWerx Solutions assistant. 😊 What IT services can I help with today? Try ‘Email Security,’ ‘Professional Emails,’ or ‘Cloud Solutions’!" },
   ]);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState("initial");
   const [email, setEmail] = useState("");
   const [slot, setSlot] = useState("");
+  const [context, setContext] = useState({});
 
   useEffect(() => {
     console.log("Updated Messages:", messages);
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!query.trim() && step !== "contact" && step !== "slots") return;
+    if (!query.trim() && step !== "contact" && step !== "slots" && step !== "email_security" && step !== "professional_emails" && step !== "email_migration") return;
     setLoading(true);
 
-    const userMessage = step === "contact" ? email : step === "slots" ? query : query;
+    const userMessage = step === "contact" ? email : 
+                       step === "slots" ? query : 
+                       step === "email_security" || step === "professional_emails" || step === "email_migration" ? query : query;
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setQuery("");
 
@@ -27,13 +30,14 @@ export default function ChatBox() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage, step, email, slot }),
+        body: JSON.stringify({ message: userMessage, step, email, slot, context }),
       });
       const data = await response.json();
       setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
       setStep(data.nextStep || "initial");
       setEmail(data.email || email);
       setSlot(data.slot || slot);
+      setContext(data.context || {});
     } catch (error) {
       setMessages((prev) => [...prev, { role: "system", content: "Oops, something went wrong. Let’s try again!" }]);
     } finally {
@@ -61,6 +65,20 @@ export default function ChatBox() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Enter 1 or 2 for the slot..."
+          className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black placeholder-gray-500 shadow-md"
+          onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+        />
+      );
+    }
+    if (step === "email_security" || step === "professional_emails" || step === "email_migration") {
+      return (
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={step === "email_security" ? "e.g., Office 365, Google Workspace..." : 
+                       step === "professional_emails" ? "e.g., Office 365, Google Workspace..." : 
+                       "e.g., traditional, Google Workspace, Office 365..."}
           className="flex-grow p-3 rounded-l-lg border border-gray-600 bg-white text-black placeholder-gray-500 shadow-md"
           onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
         />
